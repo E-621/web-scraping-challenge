@@ -3,11 +3,13 @@ from splinter import Browser
 from bs4 import BeautifulSoup as bs
 import pandas as pd
 import datetime as dt
-
+from webdriver_manager.chrome import ChromeDriverManager
 
 def scrape_all():
     # Initiate headless driver for deployment
-    browser = Browser("chrome", executable_path="chromedriver", headless=True)
+    #browser = Browser("chrome", executable_path="chromedriver", headless=True)
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    browser = Browser('chrome', **executable_path, headless=False)
 
     news_title, news_paragraph = mars_news(browser)
 
@@ -53,7 +55,7 @@ def featured_image(browser):
     jpl_nasa_url = 'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/index.html'
     browser.visit(jpl_nasa_url)
 
-    full_image = browser.find_by_tag('button')[1].click()
+    browser.find_by_tag('button')[1].click()
     
     html = browser.html
     imgages_soup = bs(html, 'html.parser')
@@ -65,7 +67,7 @@ def featured_image(browser):
     except AttributeError:
         return None
 
-    image_path = f'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/{img_url_rel}'
+    image_path = f'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/{image}'
 
     return image_path
 
@@ -79,7 +81,7 @@ def mars_facts():
     df.columns = ['Description', 'Mars']
     df.set_index('Description', inplace=True)
 
-   return df.to_html(classes="table table-striped")
+    return df.to_html(classes="table table-striped")
 
 
 def hemispheres(browser):
